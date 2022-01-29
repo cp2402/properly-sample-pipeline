@@ -37,5 +37,3 @@ FROM
     ) facilities_count
 GROUP BY
     property_address
-ORDER BY
-    property_address
