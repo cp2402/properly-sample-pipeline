@@ -1,4 +1,4 @@
-# Properly - Sample Pipeline
+# Toronto Rec Facilities - Data Pipeline
 
 ## Overview
 
