@@ -60,7 +60,7 @@ Staging and analytical transforms in data warehouse
 
 ## Sample Reporting Queries
 
-#### Home sales with count of nearby outdoor pools and proximity to closest outdoor pool
+#### Home sales with count of nearby parks and proximity to closest park
 ```
 SELECT 
     property_address, sales_price, park_nearby, park_proximity 
@@ -77,7 +77,7 @@ ORDER BY sales_price DESC OFFSET 500 LIMIT 5;
  57 Timberlane Dr Toronto, ON |     4950000 |           5 |  0.47462692091120046
 ```
 
-#### Closest 5 outdoor rinks for a specific property sale
+#### Closest 5 parks for a specific property sale
 ```
 SELECT 
     facility_location, facility_category, facility_proximity 
