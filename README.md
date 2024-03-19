@@ -3,9 +3,9 @@
 ## Overview
 
 * Goal is to prepare a basic data pipeline that combines home sales with locations of recreational facilities
-* The combined dataset can be potentially used for further descriptive  reporting and machine learning training
+* The combined dataset can be potentially used for further descriptive reporting and machine learning training
 * Final dataset consists of home sales alongside proximity to closest facility and nearby facilities count
-    * Output facility types: sports fields, outdoor pools, outdoor rinks, outdoor tracks
+    * Output facility types: parks, community centres
 
 ## Source Data Files
 
@@ -14,10 +14,10 @@
     * File: https://toronto-property-sales-kaggle.s3.us-west-2.amazonaws.com/properties.zip
     * Raw Attributes: Address, AreaName, Price ($), lat, lng
 
-2. Toronto Open Data Catalogue - Parks and Recreation Facilities (XML)
+2. Toronto Open Data Catalogue - Parks and Recreation Facilities (CSV)
     * Description: https://ckan0.cf.opendata.inter.prod-toronto.ca/en/dataset/parks-and-recreation-facilities
-    * File: https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/cbea3a67-9168-4c6d-8186-16ac1a795b5b/resource/fd8ef4fb-2163-4c36-8530-e7252119dd59/download/facilities-data.xml
-    * Raw Attributes: Location (ID, Name, Address, Postal Code), **nested** Facilities (Id, Type, Name)
+    * File: https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/cbea3a67-9168-4c6d-8186-16ac1a795b5b/resource/61691590-4c3f-42d3-94c5-443ad3856f64/download/Parks%20and%20Recreation%20Facilities%20-%204326.csv
+    * Raw Attributes: Location, Facility Name, Facility Type (Park, Community Centre), Address, Latitude, Longitude
 
 3. Canadian Postal Codes with GeoCoordinates by Service Objects (Zipped CSV)
     * Description: https://www.serviceobjects.com/blog/free-zip-code-and-postal-code-database-with-geocoordinates/
@@ -28,7 +28,7 @@
 
 * Raw data is first ingested into a data lake, then processing tasks clean/load data to DWH source layer
 * Analytic transforms are then applied within a staging layer to build final end-user presentation layer
-    1. Using listed postal code for recreational facility, join with postal locations table
+    1. Using listed postal code for recreational facility, join with postal locations table (deprecated)
     2. Compute proximity between property sales and recreational facilities using paired lat/lng data
     3. Pivot proximity data into feature columns (nearby count and closest facility) for simplified access 
 * Output is provided as OBT (one big table) in presentation layer
@@ -43,13 +43,13 @@
 Raw data ingestion to data lake
 * **ingest_postal_locations** - download and unzip raw CSV file to local store
 * **ingest_property_sales** - download and unzip raw CSV file to local store
-* **ingest_recreation_facilities** - download XML file to local file store
+* **ingest_recreation_facilities** - download CSV to local file store
 
 Data cleaning & loading to source layer in data warehouse
 * **create_src_datasets** - create schema for source tables in data warehouse 
 * **load_postal_locations** - clean data and filter for Ontario data and load to DW
 * **load_property_sales** - clean data and filter for Toronto data and load to DW
-* **load_recreation_facilities** - convert XML data, flatten nested facilities list and load to DW
+* **load_recreation_facilities** - clean data and load to DW
 
 Staging and analytical transforms in data warehouse
 * **create_stg_tables** - create staging DW tables/views for intermediate data
@@ -63,37 +63,37 @@ Staging and analytical transforms in data warehouse
 #### Home sales with count of nearby outdoor pools and proximity to closest outdoor pool
 ```
 SELECT 
-    property_address, sales_price, outdoor_pool_nearby, outdoor_pool_proximity 
+    property_address, sales_price, park_nearby, park_proximity 
 FROM 
     dwh_sales_facilities 
 ORDER BY sales_price DESC OFFSET 500 LIMIT 5;
 
-         property_address          | sales_price | outdoor_pool_nearby | outdoor_pool_proximity 
------------------------------------+-------------+---------------------+-----------------------
- 182 Patricia Ave Toronto, ON      |     1480000 |                   1 |     0.6384642751026426
- 206 LAUDER AVE Toronto, ON        |     1459000 |                   1 |     0.8424171195943948
- #3A - 36 Hazelton Ave Toronto, ON |     1459000 |                   0 |      2.462403630189339
- 56 Macdonell Ave Toronto, ON      |     1450000 |                   0 |     1.2998029691134665
- 29 Harnish Cres Toronto, ON       |     1450000 |                   0 |     1.1672457977340027
+       property_address       | sales_price | park_nearby |    park_proximity    
+------------------------------+-------------+-------------+----------------------
+ 33 VESTA DR Toronto, ON      |     4998000 |          14 | 0.020086643367051318
+ 275 Riverside Dr Toronto, ON |     4995000 |          18 |  0.19500246625420423
+ 433 THE KINGSWAY Toronto, ON |     4995000 |           7 |   0.3729123800486276
+ 421 THE KINGSWAY Toronto, ON |     4980000 |          12 |  0.21701962868836328
+ 57 Timberlane Dr Toronto, ON |     4950000 |           5 |  0.47462692091120046
 ```
 
 #### Closest 5 outdoor rinks for a specific property sale
 ```
 SELECT 
-    facility_location, facility_type, facility_proximity 
+    facility_location, facility_category, facility_proximity 
 FROM 
     stg_recreation_proximities 
-WHERE facility_category = 'Outdoor Rink' 
+WHERE facility_category = 'Park' 
     AND property_address = '#Lph05 - 797 DON MILLS RD Toronto, ON' 
 ORDER BY facility_proximity ASC LIMIT 5;
 
-       facility_location       | facility_type | facility_proximity 
--------------------------------+---------------+--------------------
- DIEPPE PARK                   | Rink-Outdoor  | 3.0485678683669932
- BROADLANDS CC                 | Rink-Outdoor  | 3.1952079310627113
- HODGSON PUBLIC SCHOOL GROUNDS | Rink-Outdoor  |  4.436386691834098
- MONARCH PARK                  | Rink-Outdoor  |  4.623339903459884
- RIVERDALE PARK EAST           | Rink-Outdoor  |  5.331112869381652
+   facility_location    | facility_category | facility_proximity  
+------------------------+-------------------+---------------------
+ FERRAND DRIVE PARK     | Park              | 0.39852955615281693
+ LINKWOOD LANE PARKETTE | Park              |  0.8304239087984224
+ FLEMINGDON PARK        | Park              |  0.8481918457803147
+ DON-LESLIE PARK        | Park              |  0.8891560009679859
+ E.T. SETON PARK        | Park              |   1.123510635264632
 ```
 
 ## Development Considerations
