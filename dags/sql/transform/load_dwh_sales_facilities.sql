@@ -1,28 +1,18 @@
 INSERT INTO dwh_sales_facilities (
     property_address,
     sales_price,
-    sport_field_nearby,
-    outdoor_pool_nearby,
-    outdoor_rink_nearby,
-    outdoor_track_nearby,
-    sport_field_proximity,
-    outdoor_pool_proximity,
-    outdoor_rink_proximity,
-    outdoor_track_proxmity
+    park_nearby,
+    community_centre_nearby,
+    park_proximity,
+    community_centre_proxmity
 )
 SELECT
     src_property_sales.property_address,
     src_property_sales.price AS sales_price,
-    COALESCE(dwh_facilities_count.sport_field_count, 0) AS sport_field_nearby,
-    COALESCE(dwh_facilities_count.outdoor_pool_count, 0) AS outdoor_pool_nearby,
-    COALESCE(dwh_facilities_count.outdoor_rink_count, 0) AS outdoor_rink_nearby,
-    COALESCE(
-        dwh_facilities_count.outdoor_track_count, 0
-    ) AS outdoor_track_nearby,
-    dwh_facilities_closest.sport_field_proximity,
-    dwh_facilities_closest.outdoor_pool_proximity,
-    dwh_facilities_closest.outdoor_rink_proximity,
-    dwh_facilities_closest.outdoor_track_proxmity
+    COALESCE(dwh_facilities_count.park_count, 0) AS park_nearby,
+    COALESCE(dwh_facilities_count.community_centre_count, 0) AS community_centre_nearby,
+    dwh_facilities_closest.park_proximity,
+    dwh_facilities_closest.community_centre_proximity
 FROM
     src_property_sales
 LEFT JOIN

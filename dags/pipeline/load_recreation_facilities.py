@@ -24,9 +24,6 @@ def extract_coordinates(row):
 def process_recreation_facilities(df: pd.DataFrame) -> pd.DataFrame:
     """Process and clean recreation facilities data"""
 
-    # geometry       object
-    # extract_tag    object
-
     remap_columns = {
         "ASSET_ID": "facility_id",
         "TYPE": "facility_type",
@@ -42,11 +39,6 @@ def process_recreation_facilities(df: pd.DataFrame) -> pd.DataFrame:
     df = df.dropna()
     df = df.drop_duplicates(subset="LOCATIONID")
     df = df.rename(columns=remap_columns)
-
-    print(df)
-
-    # 'geometry': "{'type': 'MultiPoint', 'coordinates': [[-79.4824964468455, 43.6908623900999]]}"
-    # location_id, facility_id, facility_name, facility_type, location_address, geometry, extract_tag
 
     return df
 

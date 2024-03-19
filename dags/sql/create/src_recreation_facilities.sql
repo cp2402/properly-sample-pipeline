@@ -1,11 +1,10 @@
 CREATE TABLE IF NOT EXISTS src_recreation_facilities (
-    facility_id TEXT,
-    facility_type TEXT,
-    facility_name TEXT,
-    facility_display_name TEXT,
     location_id TEXT,
+    facility_id TEXT,
+    facility_name TEXT,
+    facility_type TEXT,
     location_address TEXT,
-    location_name TEXT,
-    postal_code TEXT,
+    latitude REAL,
+    longitude REAL,
     extract_tag TEXT
 )

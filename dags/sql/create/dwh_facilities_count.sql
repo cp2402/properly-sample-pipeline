@@ -3,24 +3,14 @@ SELECT
     property_address,
     MIN(
         CASE
-            WHEN ( facility_category = 'Sport Field' ) THEN facility_count
+            WHEN ( facility_category = 'Park' ) THEN facility_count
         END
-    ) AS sport_field_count,
+    ) AS park_count,
     MIN(
         CASE
-            WHEN ( facility_category = 'Outdoor Pool' ) THEN facility_count
+            WHEN ( facility_category = 'Community Centre' ) THEN facility_count
         END
-    ) AS outdoor_pool_count,
-    MIN(
-        CASE
-            WHEN ( facility_category = 'Outdoor Rink' ) THEN facility_count
-        END
-    ) AS outdoor_rink_count,
-    MIN(
-        CASE
-            WHEN ( facility_category = 'Outdoor Track' ) THEN facility_count
-        END
-    ) AS outdoor_track_count
+    ) AS community_centre_count
 FROM
     (
         SELECT

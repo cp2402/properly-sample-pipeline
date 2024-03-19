@@ -3,14 +3,12 @@ stg_recreation_proximities (
     property_address,
     facility_location,
     facility_category,
-    facility_type,
     facility_proximity
 )
 SELECT DISTINCT
     src_property_sales.property_address,
-    stg_recreation_locations.location_name AS facility_location,
-    stg_recreation_locations.facility_display_name AS facility_category,
-    stg_recreation_locations.facility_type,
+    stg_recreation_locations.facility_name AS facility_location,
+    stg_recreation_locations.facility_type AS facility_category,
     2 * 6371 * asin(
         sqrt(
             (
